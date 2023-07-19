@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    restart: always
+    env_file:
+      - ./envs/dns.env
+    volumes:
+      - "./data/dns/etc-pihole/:/etc/pihole/"
+      - "./data/dns/etc-dnsmasq.d/:/etc/dnsmasq.d/"
+    networks:
+      vpn:
+        ipv4_address: 10.0.0.2
+
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    restart: always
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./data/portainer:/data"
+    dns: 10.0.0.2
+    networks:
+      vpn:
+        ipv4_address: 10.0.0.3
+
+  openvpn:
+    image: kylemanna/openvpn
+    container_name: openvpn
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "1194:1194/udp"
+    volumes:
+      - "./data/vpn:/etc/openvpn"
+    dns: 10.0.0.2
+    networks:
+      vpn:
+        ipv4_address: 10.0.0.4
+
+
+networks:
+  vpn:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.0.0/28

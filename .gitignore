@@ -1,0 +1,4 @@
+data/**/**
+!data/dns/.gitkeep
+!data/vpn/.gitkeep
+!data/portainer/.gitkeep
